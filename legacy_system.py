@@ -1,8 +1,6 @@
-from src.models.order import Order
-from src.repositories.order_repository import OrderRepository
-from src.services.order_service import OrderService
-from src.services.payment_service import PaymentService
-from src.services.report_service import ReportService
+from src.models import Order
+from src.repositories import OrderRepository
+from src.services import OrderService, PaymentService, ReportService
 
 
 DB_NAME = "orders.db"
