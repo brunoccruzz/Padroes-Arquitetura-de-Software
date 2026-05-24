@@ -34,6 +34,14 @@ class CorporateDiscountStrategy(DiscountStrategyInterface):
         return round(subtotal * self._RATE, 2)
 
 
+class FixedDiscountStrategy(DiscountStrategyInterface):
+    def __init__(self, amount: float) -> None:
+        self._amount = amount
+
+    def calculate(self, subtotal: float) -> float:
+        return round(min(self._amount, subtotal), 2)
+
+
 class DefaultDiscountStrategyResolver(DiscountStrategyResolverInterface):
     def __init__(self) -> None:
         self._registry: dict[CustomerType, DiscountStrategyInterface] = {

@@ -3,6 +3,7 @@ from src.strategies.discount_strategy import (
     DefaultDiscountStrategyResolver,
     DiscountStrategyInterface,
     DiscountStrategyResolverInterface,
+    FixedDiscountStrategy,
     NoDiscountStrategy,
     VipDiscountStrategy,
 )
@@ -14,12 +15,14 @@ from src.strategies.payment_strategy import (
     PaymentStrategyResolverInterface,
     PixPaymentStrategy,
 )
+from src.strategies.volume_discount_strategy import VolumeDiscountStrategy
 
 __all__ = [
     "CorporateDiscountStrategy",
     "DefaultDiscountStrategyResolver",
     "DiscountStrategyInterface",
     "DiscountStrategyResolverInterface",
+    "FixedDiscountStrategy",
     "NoDiscountStrategy",
     "VipDiscountStrategy",
     "BoletoPaymentStrategy",
@@ -28,4 +31,5 @@ __all__ = [
     "PaymentStrategyInterface",
     "PaymentStrategyResolverInterface",
     "PixPaymentStrategy",
+    "VolumeDiscountStrategy",
 ]
