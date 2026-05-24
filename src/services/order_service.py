@@ -2,11 +2,17 @@ from datetime import datetime
 
 from src.interfaces import OrderRepositoryInterface
 from src.models import CustomerType, Order, OrderItem, OrderStatus
+from src.strategies.discount_strategy import DiscountStrategyResolverInterface
 
 
 class OrderService:
-    def __init__(self, repository: OrderRepositoryInterface):
+    def __init__(
+        self,
+        repository: OrderRepositoryInterface,
+        discount_resolver: DiscountStrategyResolverInterface,
+    ) -> None:
         self.repository = repository
+        self.discount_resolver = discount_resolver
 
     def create_order(self, customer_name: str, customer_type: str, items: list[dict]) -> Order:
         if not items:
@@ -15,7 +21,7 @@ class OrderService:
         parsed_customer_type = CustomerType(customer_type.upper())
         order_items = self._build_items(items)
         subtotal = round(sum(item.line_total for item in order_items), 2)
-        discount = round(subtotal * self._discount_rate(parsed_customer_type), 2)
+        discount = self.discount_resolver.resolve(parsed_customer_type).calculate(subtotal)
         total = round(subtotal - discount, 2)
         order = Order(
             id=None,
@@ -65,10 +71,3 @@ class OrderService:
                 )
             )
         return order_items
-
-    def _discount_rate(self, customer_type: CustomerType) -> float:
-        if customer_type == CustomerType.VIP:
-            return 0.10
-        if customer_type == CustomerType.CORPORATE:
-            return 0.15
-        return 0.0

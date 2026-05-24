@@ -1,16 +1,18 @@
 from src.models import Order
 from src.repositories import OrderRepository
 from src.services import OrderService, PaymentService, ReportService
+from src.strategies.discount_strategy import DefaultDiscountStrategyResolver
+from src.strategies.payment_strategy import DefaultPaymentStrategyResolver
 
 
 DB_NAME = "orders.db"
 
 
 class LegacyOrderSystem:
-    def __init__(self, db_name=DB_NAME):
+    def __init__(self, db_name: str = DB_NAME) -> None:
         repository = OrderRepository(db_name)
-        self.order_service = OrderService(repository)
-        self.payment_service = PaymentService(repository)
+        self.order_service = OrderService(repository, DefaultDiscountStrategyResolver())
+        self.payment_service = PaymentService(repository, DefaultPaymentStrategyResolver())
         self.report_service = ReportService(repository)
 
     def create_order(self, customer_name, customer_type, items):
