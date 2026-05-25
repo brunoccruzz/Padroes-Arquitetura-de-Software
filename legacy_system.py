@@ -1,4 +1,5 @@
 from src.models import Order
+from src.factories import PedidoFactory
 from src.repositories import OrderRepository
 from src.services import OrderService, PaymentService, ReportService
 from src.strategies.discount_strategy import DefaultDiscountStrategyResolver
@@ -11,7 +12,11 @@ DB_NAME = "orders.db"
 class LegacyOrderSystem:
     def __init__(self, db_name: str = DB_NAME) -> None:
         repository = OrderRepository(db_name)
-        self.order_service = OrderService(repository, DefaultDiscountStrategyResolver())
+        discount_resolver = DefaultDiscountStrategyResolver()
+        self.order_service = OrderService(
+            repository,
+            PedidoFactory.from_discount_resolver(discount_resolver),
+        )
         self.payment_service = PaymentService(repository, DefaultPaymentStrategyResolver())
         self.report_service = ReportService(repository)
 
