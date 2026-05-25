@@ -1,10 +1,15 @@
-.PHONY: test coverage lint
+.PHONY: test coverage lint type
+
+PYTHON ?= python
 
 test:
-	pytest -v
+	$(PYTHON) -m pytest -v
 
 coverage:
-	pytest --cov=. --cov-report=term-missing --cov-report=html
+	$(PYTHON) -m pytest --cov=. --cov-report=term-missing --cov-report=html
 
 lint:
-	ruff check .
+	$(PYTHON) -m ruff check .
+
+type:
+	$(PYTHON) -m mypy
