@@ -12,7 +12,7 @@ class PaymentService:
         self.repository = repository
         self.payment_resolver = payment_resolver
 
-    def pay_order(self, order_id: int, method: str) -> dict:
+    def pay_order(self, order_id: int, method: str) -> dict[str, object]:
         order = self.repository.get_by_id(order_id)
         if order is None:
             raise ValueError("order not found")

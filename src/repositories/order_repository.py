@@ -78,6 +78,8 @@ class OrderRepository(OrderRepositoryInterface):
             ),
         )
         order_id = cursor.lastrowid
+        if order_id is None:
+            raise RuntimeError("failed to retrieve last inserted row id")
         for item in order.items:
             cursor.execute(
                 """
@@ -96,7 +98,7 @@ class OrderRepository(OrderRepositoryInterface):
             )
         connection.commit()
         connection.close()
-        saved_order = self.get_by_id(int(order_id))
+        saved_order = self.get_by_id(order_id)
         if saved_order is None:
             raise RuntimeError("saved order could not be loaded")
         return saved_order
