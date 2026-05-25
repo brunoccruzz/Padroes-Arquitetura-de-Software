@@ -8,7 +8,12 @@ from src.factories import (
     VipOrderFactory,
 )
 from src.models import CustomerType, OrderStatus
-from src.strategies.discount_strategy import DefaultDiscountStrategyResolver
+from src.strategies.discount_strategy import (
+    CorporateDiscountStrategy,
+    DefaultDiscountStrategyResolver,
+    NoDiscountStrategy,
+    VipDiscountStrategy,
+)
 
 
 def sample_items() -> list[dict[str, object]]:
@@ -18,9 +23,20 @@ def sample_items() -> list[dict[str, object]]:
     ]
 
 
+def _default_discount_resolver() -> DefaultDiscountStrategyResolver:
+    return DefaultDiscountStrategyResolver(
+        registry={
+            CustomerType.NORMAL: NoDiscountStrategy(),
+            CustomerType.VIP: VipDiscountStrategy(),
+            CustomerType.CORPORATE: CorporateDiscountStrategy(),
+        },
+        fallback=NoDiscountStrategy(),
+    )
+
+
 @pytest.fixture
 def factory() -> PedidoFactory:
-    return PedidoFactory.from_discount_resolver(DefaultDiscountStrategyResolver())
+    return PedidoFactory.from_discount_resolver(_default_discount_resolver())
 
 
 @pytest.mark.parametrize(
@@ -52,9 +68,9 @@ def test_pedido_factory_creates_supported_customer_orders(
 @pytest.mark.parametrize(
     "order_factory",
     [
-        NormalOrderFactory(DefaultDiscountStrategyResolver()),
-        VipOrderFactory(DefaultDiscountStrategyResolver()),
-        CorporateOrderFactory(DefaultDiscountStrategyResolver()),
+        NormalOrderFactory(_default_discount_resolver()),
+        VipOrderFactory(_default_discount_resolver()),
+        CorporateOrderFactory(_default_discount_resolver()),
     ],
 )
 def test_customer_factories_are_liskov_substitutable(
