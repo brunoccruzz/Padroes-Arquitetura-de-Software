@@ -1,5 +1,6 @@
 from src.models import Order
 from src.factories import PedidoFactory
+from src.observers import EmailNotificationObserver, ManagerNotificationObserver, SmsNotificationObserver
 from src.repositories import OrderRepository
 from src.services import OrderService, PaymentService, ReportService
 from src.strategies.discount_strategy import DefaultDiscountStrategyResolver
@@ -17,6 +18,10 @@ class LegacyOrderSystem:
             repository,
             PedidoFactory.from_discount_resolver(discount_resolver),
         )
+        self.order_service.attach_observer(EmailNotificationObserver())
+        self.order_service.attach_observer(SmsNotificationObserver())
+        self.order_service.attach_observer(ManagerNotificationObserver())
+
         self.payment_service = PaymentService(repository, DefaultPaymentStrategyResolver())
         self.report_service = ReportService(repository)
 
