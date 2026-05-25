@@ -43,12 +43,13 @@ class FixedDiscountStrategy(DiscountStrategyInterface):
 
 
 class DefaultDiscountStrategyResolver(DiscountStrategyResolverInterface):
-    def __init__(self) -> None:
-        self._registry: dict[CustomerType, DiscountStrategyInterface] = {
-            CustomerType.NORMAL: NoDiscountStrategy(),
-            CustomerType.VIP: VipDiscountStrategy(),
-            CustomerType.CORPORATE: CorporateDiscountStrategy(),
-        }
+    def __init__(
+        self,
+        registry: dict[CustomerType, DiscountStrategyInterface],
+        fallback: DiscountStrategyInterface,
+    ) -> None:
+        self._registry = dict(registry)
+        self._fallback = fallback
 
     def resolve(self, customer_type: CustomerType) -> DiscountStrategyInterface:
-        return self._registry.get(customer_type, NoDiscountStrategy())
+        return self._registry.get(customer_type, self._fallback)

@@ -50,12 +50,8 @@ class BoletoPaymentStrategy(PaymentStrategyInterface):
 
 
 class DefaultPaymentStrategyResolver(PaymentStrategyResolverInterface):
-    def __init__(self) -> None:
-        self._registry: dict[PaymentMethod, PaymentStrategyInterface] = {
-            PaymentMethod.CARD: CardPaymentStrategy(),
-            PaymentMethod.PIX: PixPaymentStrategy(),
-            PaymentMethod.BOLETO: BoletoPaymentStrategy(),
-        }
+    def __init__(self, registry: dict[PaymentMethod, PaymentStrategyInterface]) -> None:
+        self._registry = dict(registry)
 
     def resolve(self, method: PaymentMethod) -> PaymentStrategyInterface:
         strategy = self._registry.get(method)

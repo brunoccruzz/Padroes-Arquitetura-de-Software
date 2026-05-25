@@ -1,10 +1,20 @@
-from src.models import Order
+from src.models import CustomerType, Order, PaymentMethod
 from src.factories import PedidoFactory
 from src.observers import EmailNotificationObserver, ManagerNotificationObserver, SmsNotificationObserver, WhatsAppNotificationObserver
 from src.repositories import OrderRepository
 from src.services import OrderService, PaymentService, ReportService
-from src.strategies.discount_strategy import DefaultDiscountStrategyResolver
-from src.strategies.payment_strategy import DefaultPaymentStrategyResolver
+from src.strategies.discount_strategy import (
+    CorporateDiscountStrategy,
+    DefaultDiscountStrategyResolver,
+    NoDiscountStrategy,
+    VipDiscountStrategy,
+)
+from src.strategies.payment_strategy import (
+    BoletoPaymentStrategy,
+    CardPaymentStrategy,
+    DefaultPaymentStrategyResolver,
+    PixPaymentStrategy,
+)
 
 
 DB_NAME = "orders.db"
@@ -13,7 +23,14 @@ DB_NAME = "orders.db"
 class LegacyOrderSystem:
     def __init__(self, db_name: str = DB_NAME) -> None:
         repository = OrderRepository(db_name)
-        discount_resolver = DefaultDiscountStrategyResolver()
+        discount_resolver = DefaultDiscountStrategyResolver(
+            registry={
+                CustomerType.NORMAL: NoDiscountStrategy(),
+                CustomerType.VIP: VipDiscountStrategy(),
+                CustomerType.CORPORATE: CorporateDiscountStrategy(),
+            },
+            fallback=NoDiscountStrategy(),
+        )
         self.order_service = OrderService(
             repository,
             PedidoFactory.from_discount_resolver(discount_resolver),
@@ -23,7 +40,14 @@ class LegacyOrderSystem:
         self.order_service.attach_observer(ManagerNotificationObserver())
         self.order_service.attach_observer(WhatsAppNotificationObserver())
 
-        self.payment_service = PaymentService(repository, DefaultPaymentStrategyResolver())
+        payment_resolver = DefaultPaymentStrategyResolver(
+            registry={
+                PaymentMethod.CARD: CardPaymentStrategy(),
+                PaymentMethod.PIX: PixPaymentStrategy(),
+                PaymentMethod.BOLETO: BoletoPaymentStrategy(),
+            },
+        )
+        self.payment_service = PaymentService(repository, payment_resolver)
         self.report_service = ReportService(repository)
 
     def create_order(self, customer_name, customer_type, items):
