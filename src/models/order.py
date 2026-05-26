@@ -19,6 +19,7 @@ class PaymentMethod(StrEnum):
     CARD = "CARD"
     PIX = "PIX"
     BOLETO = "BOLETO"
+    CRYPTO = "CRYPTO"
 
 
 @dataclass(frozen=True)

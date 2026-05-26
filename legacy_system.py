@@ -1,6 +1,11 @@
 from src.models import CustomerType, Order, PaymentMethod
-from src.factories import PedidoFactory
-from src.observers import EmailNotificationObserver, ManagerNotificationObserver, SmsNotificationObserver, WhatsAppNotificationObserver
+from src.factories import PedidoFactory, VolumeDiscountPedidoFactory
+from src.observers import (
+    EmailNotificationObserver,
+    ManagerNotificationObserver,
+    SmsNotificationObserver,
+    WhatsAppNotificationObserver,
+)
 from src.repositories import OrderRepository
 from src.services import OrderService, PaymentService, ReportService
 from src.strategies.discount_strategy import (
@@ -9,6 +14,7 @@ from src.strategies.discount_strategy import (
     NoDiscountStrategy,
     VipDiscountStrategy,
 )
+from src.strategies.crypto_payment_strategy import CryptoPaymentStrategy
 from src.strategies.payment_strategy import (
     BoletoPaymentStrategy,
     CardPaymentStrategy,
@@ -33,7 +39,7 @@ class LegacyOrderSystem:
         )
         self.order_service = OrderService(
             repository,
-            PedidoFactory.from_discount_resolver(discount_resolver),
+            VolumeDiscountPedidoFactory(PedidoFactory.from_discount_resolver(discount_resolver)),
         )
         self.order_service.attach_observer(EmailNotificationObserver())
         self.order_service.attach_observer(SmsNotificationObserver())
@@ -45,6 +51,7 @@ class LegacyOrderSystem:
                 PaymentMethod.CARD: CardPaymentStrategy(),
                 PaymentMethod.PIX: PixPaymentStrategy(),
                 PaymentMethod.BOLETO: BoletoPaymentStrategy(),
+                PaymentMethod.CRYPTO: CryptoPaymentStrategy(),
             },
         )
         self.payment_service = PaymentService(repository, payment_resolver)

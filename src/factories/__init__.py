@@ -7,6 +7,7 @@ from src.factories.order_factory import (
     PedidoFactoryInterface,
     VipOrderFactory,
 )
+from src.factories.volume_discount_factory import VolumeDiscountPedidoFactory
 
 __all__ = [
     "CorporateOrderFactory",
@@ -16,4 +17,5 @@ __all__ = [
     "PedidoFactory",
     "PedidoFactoryInterface",
     "VipOrderFactory",
+    "VolumeDiscountPedidoFactory",
 ]
